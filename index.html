@@ -123,17 +123,51 @@
 
     // LOGIN
     async function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const message = document.getElementById("message");
 
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-
-      const message = document.getElementById("message");
-
-      if (!email || !password) {
+    if (!email || !password) {
         message.textContent = "Please enter your email and password.";
         message.style.color = "red";
         return;
-      }
+    }
+
+    message.textContent = "Logging in...";
+    message.style.color = "black";
+
+    try {
+        const loginRequest = db.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+        const timeout = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Login request timed out. Check your Supabase settings.")), 10000)
+        );
+
+        const { data, error } = await Promise.race([
+            loginRequest,
+            timeout
+        ]);
+
+        if (error) {
+            message.textContent = error.message;
+            message.style.color = "red";
+            return;
+        }
+
+        message.textContent = "Login successful!";
+        message.style.color = "green";
+
+        window.location.href = "dashboard.html";
+
+    } catch (error) {
+        message.textContent = "Login failed: " + error.message;
+        message.style.color = "red";
+        console.error(error);
+    }
+}
 
       message.textContent = "Logging in...";
       message.style.color = "#16803c";
