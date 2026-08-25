@@ -66,9 +66,15 @@
       background: #10652f;
     }
 
+    button:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
     #message {
       margin-top: 15px;
       font-weight: bold;
+      line-height: 1.4;
     }
 
     .back-login {
@@ -119,19 +125,22 @@
       autocomplete="new-password"
     >
 
-    <button type="button" onclick="register()">
+    <button type="button" id="registerButton">
       CREATE ACCOUNT
     </button>
 
     <p id="message"></p>
 
-    <div class="back-login" onclick="goToLogin()">
+    <div class="back-login" id="loginLink">
       Already have an account? Login
     </div>
 
   </div>
 
   <script>
+    // ==========================================
+    // SUPABASE CONNECTION
+    // ==========================================
 
     const SUPABASE_URL =
       "https://bhkzjwdwcwnlzlbpyeak.supabase.co";
@@ -145,7 +154,11 @@
     );
 
 
-    async function register() {
+    // ==========================================
+    // REGISTER USER
+    // ==========================================
+
+    async function registerUser() {
 
       const fullName =
         document.getElementById("fullName").value.trim();
@@ -162,6 +175,11 @@
       const message =
         document.getElementById("message");
 
+      const button =
+        document.getElementById("registerButton");
+
+
+      // Check all fields
 
       if (!fullName || !email || !password || !confirmPassword) {
 
@@ -174,6 +192,8 @@
       }
 
 
+      // Check password length
+
       if (password.length < 6) {
 
         message.textContent =
@@ -184,6 +204,8 @@
         return;
       }
 
+
+      // Check passwords match
 
       if (password !== confirmPassword) {
 
@@ -196,82 +218,11 @@
       }
 
 
+      // Disable button while creating account
+
+      button.disabled = true;
+
+      button.textContent = "CREATING ACCOUNT...";
+
       message.textContent =
-        "Creating account...";
-
-      message.style.color = "#16803c";
-
-
-      try {
-
-        const { data, error } =
-          await db.auth.signUp({
-
-            email: email,
-
-            password: password,
-
-            options: {
-
-              data: {
-                full_name: fullName
-              },
-
-              emailRedirectTo:
-                window.location.origin +
-                "/ELLY-JUNIOR-ACADEMY-1/index.html"
-
-            }
-
-          });
-
-
-        if (error) {
-
-          message.textContent =
-            error.message;
-
-          message.style.color = "red";
-
-          return;
-        }
-
-
-        if (data.user && !data.session) {
-
-          message.textContent =
-            "Account created! Please check your email to confirm your account.";
-
-          message.style.color = "green";
-
-          return;
-        }
-
-
-        message.textContent =
-          "Account created successfully!";
-
-        message.style.color = "green";
-
-
-        setTimeout(function() {
-
-          window.location.href = "index.html";
-
-        }, 1500);
-
-
-      } catch (error) {
-
-        console.error("Registration error:", error);
-
-        message.textContent =
-          "Registration failed: " + error.message;
-
-        message.style.color = "red";
-      }
-
-    }
-
-
-    function go
+        "
