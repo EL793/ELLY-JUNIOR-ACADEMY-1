@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Elly Junior Academy - Create Account</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      min-height: 100vh;
+    }
+
+    .register-box {
+
+      width: 90%;
+      max-width: 400px;
+
+      background: white;
+
+      padding: 30px;
+
+      border-radius: 15px;
+
+      box-shadow:
+        0 5px 25px rgba(0,0,0,0.15);
+
+      text-align: center;
+
+      box-sizing: border-box;
+    }
+
+    h1 {
+
+      color: #16803c;
+
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+
+      color: #666;
+
+      margin-bottom: 20px;
+    }
+
+    input {
+
+      width: 100%;
+
+      box-sizing: border-box;
+
+      padding: 14px;
+
+      margin: 10px 0;
+
+      border: 1px solid #ccc;
+
+      border-radius: 8px;
+
+      font-size: 16px;
+    }
+
+    button {
+
+      width: 100%;
+
+      padding: 14px;
+
+      margin-top: 10px;
+
+      background: #16803c;
+
+      color: white;
+
+      border: none;
+
+      border-radius: 8px;
+
+      font-size: 16px;
+
+      cursor: pointer;
+    }
+
+    button:hover {
+
+      background: #10652f;
+    }
+
+    #message {
+
+      margin-top: 15px;
+
+      font-weight: bold;
+    }
+
+    .back-login {
+
+      margin-top: 20px;
+
+      color: #16803c;
+
+      cursor: pointer;
+
+      font-weight: bold;
+
+      font-size: 17px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="register-box">
+
+    <h1>ELLY JUNIOR ACADEMY</h1>
+
+    <p class="subtitle">
+      Create Student / User Account
+    </p>
+
+
+    <input
+      type="text"
+      id="fullName"
+      placeholder="Full name"
+      autocomplete="name"
+    >
+
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Email address"
+      autocomplete="email"
+    >
+
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Create password"
+      autocomplete="new-password"
+    >
+
+
+    <input
+      type="password"
+      id="confirmPassword"
+      placeholder="Confirm password"
+      autocomplete="new-password"
+    >
+
+
+    <button onclick="register()">
+      CREATE ACCOUNT
+    </button>
+
+
+    <p id="message"></p>
+
+
+    <div
+      class="back-login"
+      onclick="goToLogin()"
+    >
+      Already have an account? Login
+    </div>
+
+  </div>
+
+
+  <script>
+
+    // ==============================
+    // SUPABASE
+    // ==============================
+
+    const SUPABASE_URL =
+      "https://bhkzjwdwcwnlzlbpyeak.supabase.co";
+
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_uEFokNrcALGVfo-M9l-z2g_z1tz9_8K";
+
+
+    const db =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+
+
+    // ==============================
+    // REGISTER
+    // ==============================
+
+    async function register() {
+
+      const fullName =
+        document.getElementById("fullName")
+        .value
+        .trim();
+
+
+      const email =
+        document.getElementById("email")
+        .value
+        .trim();
+
+
+      const password =
+        document.getElementById("password")
+        .value;
+
+
+      const confirmPassword =
+        document.getElementById("confirmPassword")
+        .value;
+
+
+      const message =
+        document.getElementById("message");
+
+
+      // Check fields
+
+      if (
+        !fullName ||
+        !email ||
+        !password ||
+        !confirmPassword
+      ) {
+
+        message.textContent =
+          "Please fill in all fields.";
+
+        message.style.color = "red";
+
+        return;
+      }
+
+
+      // Check password length
+
+      if (password.length < 6) {
+
+        message.textContent =
+          "Password must be at least 6 characters.";
+
+        message.style.color = "red";
+
+        return;
+      }
+
+
+      // Check passwords
+
+      if (password !== confirmPassword) {
+
+        message.textContent =
+          "Passwords do not match.";
+
+        message.style.color = "red";
+
+        return;
+      }
+
+
+      message.textContent =
+        "Creating account...";
+
+      message.style.color =
+        "#16803c";
+
+
+      try {
+
+        const { data, error } =
+          await db.auth.signUp({
+
+            email: email,
+
+            password: password,
+
+            options: {
+
+              data: {
+                full_name: fullName
+              },
+
+              emailRedirectTo:
+                window.location.origin +
+                "/ELLY-JUNIOR-ACADEMY-1/index.html"
+            }
+
+          });
+
+
+        if (error) {
+
+          message.textContent =
+            error.message;
+
+          message.style.color = "red";
+
+          return;
+        }
+
+
+        // If email confirmation is required
+
+        if (
+          data.user &&
+          !data.session
+        ) {
+
+          message.textContent =
+            "Account created! Please check your email to confirm your account.";
