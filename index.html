@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Elly Junior Academy - Login</title>
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -27,6 +26,7 @@
       border-radius: 15px;
       box-shadow: 0 5px 25px rgba(0,0,0,0.15);
       text-align: center;
+      box-sizing: border-box;
     }
 
     h1 {
@@ -64,46 +64,28 @@
       background: #10652f;
     }
 
-    .register-button {
-      background: #333;
-    }
-
-    .register-button:hover {
-      background: #222;
-    }
-
     #message {
       margin-top: 15px;
       font-weight: bold;
     }
 
     .forgot {
-      margin-top: 15px;
-      color: #16803c;
-      cursor: pointer;
-    }
-
-    .forgot:hover {
-      text-decoration: underline;
-    }
-
-    .register-link {
       margin-top: 18px;
       color: #16803c;
       cursor: pointer;
+      font-size: 17px;
+    }
+
+    .create-account {
+      margin-top: 25px;
+      color: #16803c;
+      font-size: 18px;
       font-weight: bold;
+      cursor: pointer;
     }
 
-    .register-link:hover {
+    .create-account span {
       text-decoration: underline;
-    }
-
-    #confirmPassword {
-      display: none;
-    }
-
-    #registerButton {
-      display: none;
     }
   </style>
 </head>
@@ -114,70 +96,41 @@
 
     <h1>ELLY JUNIOR ACADEMY</h1>
 
-    <p id="formTitle">Student / User Login</p>
+    <p>Student / User Login</p>
 
-    <!-- EMAIL -->
     <input
       type="email"
       id="email"
       placeholder="Email address"
-      required
+      autocomplete="email"
     >
 
-    <!-- PASSWORD -->
     <input
       type="password"
       id="password"
       placeholder="Password"
-      required
+      autocomplete="current-password"
     >
 
-    <!-- CONFIRM PASSWORD - ONLY FOR REGISTRATION -->
-    <input
-      type="password"
-      id="confirmPassword"
-      placeholder="Confirm password"
-    >
+    <button onclick="login()">LOGIN</button>
 
-    <!-- LOGIN BUTTON -->
-    <button id="loginButton" onclick="login()">
-      LOGIN
-    </button>
-
-    <!-- REGISTER BUTTON -->
-    <button
-      id="registerButton"
-      class="register-button"
-      onclick="registerUser()">
-      CREATE ACCOUNT
-    </button>
-
-    <!-- FORGOT PASSWORD -->
-    <div
-      class="forgot"
-      onclick="resetPassword()">
+    <div class="forgot" onclick="resetPassword()">
       Forgot password?
     </div>
 
-    <!-- SWITCH LOGIN / REGISTER -->
-    <div
-      class="register-link"
-      id="switchMode"
-      onclick="showRegister()">
-      Don't have an account? Create one
+    <div class="create-account" onclick="goToRegister()">
+      Don't have an account? <span>Create one</span>
     </div>
 
-    <!-- MESSAGE -->
     <p id="message"></p>
 
   </div>
 
-
   <script>
 
-    // ==========================================
+    // ==============================
     // SUPABASE CONNECTION
-    // ==========================================
+    // ==============================
 
     const SUPABASE_URL =
       "https://bhkzjwdwcwnlzlbpyeak.supabase.co";
@@ -185,17 +138,15 @@
     const SUPABASE_ANON_KEY =
       "sb_publishable_uEFokNrcALGVfo-M9l-z2g_z1tz9_8K";
 
-    const { createClient } = supabase;
-
-    const db = createClient(
+    const db = window.supabase.createClient(
       SUPABASE_URL,
       SUPABASE_ANON_KEY
     );
 
 
-    // ==========================================
+    // ==============================
     // LOGIN
-    // ==========================================
+    // ==============================
 
     async function login() {
 
@@ -209,7 +160,6 @@
         document.getElementById("message");
 
 
-      // Check fields
       if (!email || !password) {
 
         message.textContent =
@@ -221,32 +171,23 @@
       }
 
 
-      message.textContent =
-        "Logging in...";
-
-      message.style.color =
-        "#16803c";
+      message.textContent = "Logging in...";
+      message.style.color = "#16803c";
 
 
       try {
 
         const { data, error } =
           await db.auth.signInWithPassword({
-
             email: email,
-
             password: password
-
           });
 
 
         if (error) {
 
-          message.textContent =
-            error.message;
-
-          message.style.color =
-            "red";
+          message.textContent = error.message;
+          message.style.color = "red";
 
           return;
         }
@@ -255,171 +196,102 @@
         message.textContent =
           "Login successful!";
 
-        message.style.color =
-          "green";
+        message.style.color = "green";
 
 
         // Go to dashboard
+
         window.location.href =
           "dashboard.html";
-
 
       } catch (error) {
 
         message.textContent =
           "Login failed: " + error.message;
 
-        message.style.color =
-          "red";
+        message.style.color = "red";
 
         console.error(error);
       }
     }
 
 
-    // ==========================================
-    // SHOW REGISTRATION FORM
-    // ==========================================
+    // ==============================
+    // CREATE ACCOUNT
+    // ==============================
 
-    function showRegister() {
+    function goToRegister() {
 
-      document.getElementById("formTitle").textContent =
-        "Create Student / User Account";
-
-      document.getElementById("confirmPassword").style.display =
-        "block";
-
-      document.getElementById("loginButton").style.display =
-        "none";
-
-      document.getElementById("registerButton").style.display =
-        "block";
-
-      document.getElementById("switchMode").textContent =
-        "Already have an account? Login";
-
-      document.getElementById("switchMode").onclick =
-        showLogin;
-
-      document.getElementById("message").textContent =
-        "";
+      window.location.href =
+        "register.html";
     }
 
 
-    // ==========================================
-    // SHOW LOGIN FORM
-    // ==========================================
+    // ==============================
+    // PASSWORD RESET
+    // ==============================
 
-    function showLogin() {
-
-      document.getElementById("formTitle").textContent =
-        "Student / User Login";
-
-      document.getElementById("confirmPassword").style.display =
-        "none";
-
-      document.getElementById("loginButton").style.display =
-        "block";
-
-      document.getElementById("registerButton").style.display =
-        "none";
-
-      document.getElementById("switchMode").textContent =
-        "Don't have an account? Create one";
-
-      document.getElementById("switchMode").onclick =
-        showRegister;
-
-      document.getElementById("message").textContent =
-        "";
-    }
-
-
-    // ==========================================
-    // REGISTER NEW USER
-    // ==========================================
-
-    async function registerUser() {
+    async function resetPassword() {
 
       const email =
         document.getElementById("email").value.trim();
-
-      const password =
-        document.getElementById("password").value;
-
-      const confirmPassword =
-        document.getElementById("confirmPassword").value;
 
       const message =
         document.getElementById("message");
 
 
-      // Check email and password
-      if (!email || !password || !confirmPassword) {
+      if (!email) {
 
         message.textContent =
-          "Please fill in all fields.";
+          "Enter your email address first.";
 
-        message.style.color =
-          "red";
+        message.style.color = "red";
 
         return;
       }
-
-
-      // Check password length
-      if (password.length < 6) {
-
-        message.textContent =
-          "Password must be at least 6 characters.";
-
-        message.style.color =
-          "red";
-
-        return;
-      }
-
-
-      // Check passwords match
-      if (password !== confirmPassword) {
-
-        message.textContent =
-          "Passwords do not match.";
-
-        message.style.color =
-          "red";
-
-        return;
-      }
-
-
-      message.textContent =
-        "Creating account...";
-
-      message.style.color =
-        "#16803c";
 
 
       try {
 
-        const { data, error } =
-          await db.auth.signUp({
-
-            email: email,
-
-            password: password,
-
-            options: {
-
-              emailRedirectTo:
-                window.location.origin
-
+        const { error } =
+          await db.auth.resetPasswordForEmail(
+            email,
+            {
+              redirectTo:
+                window.location.origin +
+                "/ELLY-JUNIOR-ACADEMY-1/reset-password.html"
             }
-
-          });
+          );
 
 
         if (error) {
 
           message.textContent =
             error.message;
+
+          message.style.color = "red";
+
+          return;
+        }
+
+
+        message.textContent =
+          "Password reset email sent. Check your email.";
+
+        message.style.color = "green";
+
+
+      } catch (error) {
+
+        message.textContent =
+          "Password reset failed: " +
+          error.message;
+
+        message.style.color = "red";
+      }
+    }
+
+  </script>
+
+</body>
+</html>
